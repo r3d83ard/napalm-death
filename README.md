@@ -7,18 +7,29 @@ A background macOS service that watches for failure signals from Cowork schedule
 ## How it works
 
 ```
-Cowork scheduled task fails
-  └─> Claude writes a sentinel file:  ~/cowork-alarm/triggers/<timestamp>.trigger
-        └─> LaunchAgent watcher runs every 2 min, sees the file
-              ├─> saves current system volume
-              ├─> sets volume to 100%
-              ├─> open spotify:track:5oD2Z1OOx1Tmcu2mc9sLY2  (Spotify desktop)
-              ├─> waits 5 seconds (song is 1.3s; pad for app launch)
-              ├─> restores original volume
-              └─> moves the trigger into ~/cowork-alarm/fired/
+Cowork scheduled task fails (inside a sandboxed project workspace)
+  └─> Claude writes a sentinel file (workspace-relative):
+        <workspace-root>/cowork-alarm/triggers/<timestamp>.trigger
+        e.g.  ~/Documents/Claude/Projects/Heimdall/cowork-alarm/triggers/...
+  └─> LaunchAgent watcher runs every 2 min, scans all known trigger dirs:
+        - ~/cowork-alarm/triggers/                       (manual triggers / fallback)
+        - ~/Documents/Claude/Projects/*/cowork-alarm/triggers/  (each project workspace)
+  └─> If any trigger found:
+        ├─> saves current system volume and current Spotify state
+        ├─> sets volume to 100%
+        ├─> tells Spotify to play You Suffer (interrupts whatever was playing)
+        ├─> waits 3 seconds for the alarm song
+        ├─> restores Spotify to the previous track and seek position
+        └─> moves the trigger into ~/cowork-alarm/fired/ (prefixed with a
+            6-char hash of the source dir so triggers from different projects
+            don't collide)
 ```
 
 Polling cadence: every 2 minutes. Worst case you hear about a failure 2 minutes after it happens.
+
+## Adding a new project workspace
+
+If a scheduled task runs in a workspace at a path that isn't already covered (i.e. not under `~/Documents/Claude/Projects/*/`), edit the `TRIGGER_PATHS` array at the top of `~/cowork-alarm/watcher.sh` and add the new path. No reload needed — the LaunchAgent re-reads the script on every fire.
 
 ## Install
 
