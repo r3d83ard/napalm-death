@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.cowork.alarm-watcher</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/Users/chris/cowork-alarm/watcher.sh</string>
+    </array>
+
+    <!-- Run every 120 seconds (2 minutes) -->
+    <key>StartInterval</key>
+    <integer>120</integer>
+
+    <!-- Run once when loaded, so you can verify it works immediately -->
+    <key>RunAtLoad</key>
+    <true/>
+
+    <!-- Keep it alive for the user session; macOS will respawn if it dies -->
+    <key>ProcessType</key>
+    <string>Background</string>
+
+    <key>StandardOutPath</key>
+    <string>/Users/chris/cowork-alarm/launchd.out.log</string>
+    <key>StandardErrorPath</key>
+    <string>/Users/chris/cowork-alarm/launchd.err.log</string>
+</dict>
+</plist>
