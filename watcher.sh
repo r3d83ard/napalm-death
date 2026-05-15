@@ -59,6 +59,9 @@ PREV_POSITION=$(osascript -e 'tell application "Spotify" to player position' 2>/
 PREV_STATE=$(osascript -e 'tell application "Spotify" to player state as string' 2>/dev/null || true)
 log "saved spotify state: track=${PREV_TRACK:-none} pos=${PREV_POSITION:-0} state=${PREV_STATE:-none}"
 
+# Pause Spotify before cranking volume so the current song doesn't blast
+osascript -e 'tell application "Spotify" to pause' >/dev/null 2>&1
+
 # Make sure system audio isn't muted, then crank to max
 osascript -e "set volume output muted false" >/dev/null 2>&1
 osascript -e "set volume output volume 100" >/dev/null 2>&1
@@ -84,7 +87,7 @@ if [ -n "${PREV_TRACK:-}" ]; then
   osascript <<EOF >/dev/null 2>&1
 tell application "Spotify"
     play track "$PREV_TRACK"
-    delay 0.3
+    delay 0.5
     set player position to ${PREV_POSITION:-0}
 end tell
 EOF
